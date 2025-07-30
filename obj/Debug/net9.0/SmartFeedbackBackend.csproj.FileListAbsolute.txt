@@ -164,3 +164,4 @@ C:\Users\labadmin\SmartFeedbackBackend\SmartFeedbackBackend\obj\Debug\net9.0\ref
 C:\Users\labadmin\SmartFeedbackBackend\SmartFeedbackBackend\obj\Debug\net9.0\SmartFeedbackBackend.pdb
 C:\Users\labadmin\SmartFeedbackBackend\SmartFeedbackBackend\obj\Debug\net9.0\SmartFeedbackBackend.genruntimeconfig.cache
 C:\Users\labadmin\SmartFeedbackBackend\SmartFeedbackBackend\obj\Debug\net9.0\ref\SmartFeedbackBackend.dll
+C:\Users\labadmin\SmartFeedbackBackend\SmartFeedbackBackend\obj\Debug\net9.0\SmartFeedbackBackend.sourcelink.json

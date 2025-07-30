@@ -25,6 +25,11 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register([FromBody] RegisterDto dto)
     {
+        if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
+        {
+            return BadRequest(new { message = "All fields are required." });
+        }
+
         if (_context.Users.Any(u => u.Email == dto.Email))
         {
             return BadRequest(new { message = "Email already exists" });
@@ -47,6 +52,11 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginDto dto)
     {
+        if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Password))
+        {
+            return BadRequest(new { message = "Email and password are required." });
+        }
+
         var user = _context.Users.FirstOrDefault(u => u.Email == dto.Email);
         if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
         {
@@ -56,6 +66,7 @@ public class AuthController : ControllerBase
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Name),
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.Role, user.Role)
         };
@@ -67,7 +78,7 @@ public class AuthController : ControllerBase
             issuer: _configuration["Jwt:Issuer"],
             audience: _configuration["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.Now.AddDays(3),
+            expires: DateTime.UtcNow.AddDays(3),
             signingCredentials: creds
         );
 
@@ -76,7 +87,13 @@ public class AuthController : ControllerBase
         return Ok(new
         {
             token = jwt,
-            user = new { user.Id, user.Name, user.Email, user.Role }
+            user = new
+            {
+                user.Id,
+                user.Name,
+                user.Email,
+                user.Role
+            }
         });
     }
 }

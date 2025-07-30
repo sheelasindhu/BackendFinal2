@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SmartFeedbackBackend.Data;
 using SmartFeedbackBackend.DTOs;
 using SmartFeedbackBackend.Models;
@@ -31,7 +32,9 @@ public class FeedbackController : ControllerBase
         {
             Category = dto.Category,
             Content = dto.Content,
-            UserId = userId
+            Rating = dto.Rating,
+            UserId = userId,
+            CreatedAt = DateTime.UtcNow
         };
 
         _context.Feedbacks.Add(feedback);
@@ -40,35 +43,38 @@ public class FeedbackController : ControllerBase
         return Ok(new
         {
             success = true,
-            message = "Feedback submitted successfully and stored in the system.",
+            message = "Feedback submitted successfully.",
             feedback = new
             {
                 feedback.Id,
                 feedback.Category,
                 feedback.Content,
+                feedback.Rating,
                 feedback.CreatedAt
             }
         });
     }
-
-
     [HttpGet]
     [Authorize(Roles = "Admin")]
     public IActionResult GetAllFeedback()
     {
         var feedbacks = _context.Feedbacks
+            .Include(f => f.User)
             .Select(f => new
             {
                 f.Id,
                 f.Category,
                 f.Content,
+                f.Rating,
                 f.CreatedAt,
                 User = f.User != null ? f.User.Name : "Unknown"
-            }).ToList();
+            })
+            .ToList();
+
         return Ok(feedbacks);
     }
 
-     [HttpGet("my")]
+    [HttpGet("my")]
     [Authorize]
     public IActionResult GetUserFeedback()
     {
@@ -81,7 +87,8 @@ public class FeedbackController : ControllerBase
                 f.Id,
                 f.Category,
                 f.Content,
-                f.CreatedAt
+                f.Rating,
+                Date = f.CreatedAt
             }).ToList();
 
         return Ok(feedbacks);
